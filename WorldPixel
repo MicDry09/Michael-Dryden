@@ -1,1 +1,454 @@
+# Create a minimal full-stack "world-pixel-canvas" project (original, not a replica of any brand).
+# It includes a Node.js WebSocket server and a Vite + React client.
+# We'll package everything into a zip for the user to download.
+
+import os, json, zipfile, textwrap, pathlib
+
+root = "/mnt/data/world-pixel-canvas"
+server_dir = os.path.join(root, "server")
+client_dir = os.path.join(root, "client")
+
+os.makedirs(server_dir, exist_ok=True)
+os.makedirs(client_dir, exist_ok=True)
+
+# ------------------ Server files ------------------
+server_pkg = {
+  "name": "world-pixel-canvas-server",
+  "version": "1.0.0",
+  "private": True,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0",
+    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6",
+    "nanoid": "^5.0.7"
+  }
+}
+with open(os.path.join(server_dir,"package.json"),"w") as f:
+    json.dump(server_pkg,f,indent=2)
+
+server_js = r'''
+import express from "express";
+import cors from "cors";
+import http from "http";
+import { WebSocketServer } from "ws";
+import cookieParser from "cookie-parser";
+import { nanoid } from "nanoid";
+import fs from "fs";
+import path from "path";
+import url from "url";
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+// ---- Basic config ----
+const PORT = process.env.PORT || 3001;
+const WORLD_WIDTH = 4096;   // canvas width in "world pixels"
+const WORLD_HEIGHT = 2048;  // canvas height
+const MAX_BALANCE = 30;     // max pixels a user can hold
+const REPLENISH_MS = 30_000; // 1 pixel every 30s
+
+// ---- In-memory state ----
+/** Map key: "x,y" => { x, y, color } */
+const pixels = new Map();
+/** User state: userId => { balance, lastRegenAt } */
+const users = new Map();
+
+// ---- Load/save snapshot (optional persistence) ----
+const dataDir = path.join(__dirname, "data");
+const snapshotPath = path.join(dataDir, "pixels.snapshot.json");
+fs.mkdirSync(dataDir, { recursive: true });
+
+function saveSnapshot() {
+  try {
+    const all = Array.from(pixels.values());
+    fs.writeFileSync(snapshotPath, JSON.stringify(all));
+  } catch (e) {
+    console.error("Snapshot save error:", e);
+  }
+}
+
+function loadSnapshot() {
+  try {
+    if (fs.existsSync(snapshotPath)) {
+      const raw = JSON.parse(fs.readFileSync(snapshotPath, "utf-8"));
+      raw.forEach(p => {
+        const key = `${p.x},${p.y}`;
+        pixels.set(key, { x: p.x, y: p.y, color: p.color });
+      });
+      console.log(`Loaded ${pixels.size} pixels from snapshot.`);
+    }
+  } catch (e) {
+    console.error("Snapshot load error:", e);
+  }
+}
+loadSnapshot();
+setInterval(saveSnapshot, 60_000);
+
+// ---- App ----
+const app = express();
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieParser());
+app.use(express.json());
+
+// Simple endpoint to check health and world size
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, world: { width: WORLD_WIDTH, height: WORLD_HEIGHT } });
+});
+
+// ---- HTTP + WS ----
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+function regenBalance(user) {
+  const now = Date.now();
+  if (!user.lastRegenAt) user.lastRegenAt = now;
+  const elapsed = now - user.lastRegenAt;
+  if (elapsed <= 0) return;
+
+  const gained = Math.floor(elapsed / REPLENISH_MS);
+  if (gained > 0) {
+    user.balance = Math.min(MAX_BALANCE, (user.balance ?? MAX_BALANCE) + gained);
+    user.lastRegenAt += gained * REPLENISH_MS;
+  }
+}
+
+function getOrCreateUser(userId) {
+  let u = users.get(userId);
+  if (!u) {
+    u = { balance: MAX_BALANCE, lastRegenAt: Date.now() };
+    users.set(userId, u);
+  } else {
+    regenBalance(u);
+  }
+  return u;
+}
+
+function broadcast(msg) {
+  const str = JSON.stringify(msg);
+  for (const client of wss.clients) {
+    if (client.readyState === 1) client.send(str);
+  }
+}
+
+wss.on("connection", (ws, req) => {
+  // Assign or receive a userId via query string ?uid=...
+  const urlObj = new URL(req.url, `http://${req.headers.host}`);
+  let userId = urlObj.searchParams.get("uid");
+  if (!userId) userId = nanoid();
+
+  const user = getOrCreateUser(userId);
+
+  // Send hello + world state (could be paginated/region-limited in production)
+  ws.send(JSON.stringify({
+    type: "hello",
+    userId,
+    world: { width: WORLD_WIDTH, height: WORLD_HEIGHT },
+    balance: user.balance,
+    cooldownMs: REPLENISH_MS,
+  }));
+
+  // Send a compact snapshot
+  ws.send(JSON.stringify({
+    type: "snapshot",
+    pixels: Array.from(pixels.values())
+  }));
+
+  ws.on("message", (data) => {
+    try {
+      const msg = JSON.parse(data.toString("utf-8"));
+      if (msg.type === "place") {
+        const { x, y, color, userId: rawUid } = msg;
+        const uid = rawUid || userId;
+        if (!Number.isInteger(x) || !Number.isInteger(y)) return;
+        if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) return;
+        if (typeof color !== "string" || !/^#[0-9A-Fa-f]{6}$/.test(color)) return;
+
+        const u = getOrCreateUser(uid);
+        if (u.balance <= 0) {
+          // return current balance update
+          ws.send(JSON.stringify({ type: "balance", balance: u.balance }));
+          return;
+        }
+
+        u.balance -= 1;
+
+        const key = `${x},${y}`;
+        pixels.set(key, { x, y, color });
+
+        const update = { type: "pixel", x, y, color };
+        broadcast(update);
+        // Also send back new balance to the placing user
+        ws.send(JSON.stringify({ type: "balance", balance: u.balance }));
+      }
+    } catch (e) {
+      console.error("WS message error:", e);
+    }
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server listening on http://localhost:${PORT}`);
+});
+'''
+with open(os.path.join(server_dir,"server.js"),"w") as f:
+    f.write(server_js)
+
+# ------------------ Client files ------------------
+client_pkg = {
+  "name": "world-pixel-canvas-client",
+  "private": True,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^5.4.2"
+  }
+}
+with open(os.path.join(client_dir,"package.json"),"w") as f:
+    json.dump(client_pkg,f,indent=2)
+
+index_html = '''<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Pixel Canvas</title>
+    <style>
+      html, body, #root { height: 100%; margin: 0; }
+      body { background: #0b0b0c; color: #eaeaea; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .toolbar {
+        position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 16px;
+        display: flex; gap: 12px; align-items:center; padding: 10px 14px; z-index: 10; backdrop-filter: blur(6px);
+      }
+      .palette button {
+        width: 24px; height: 24px; border-radius: 6px; border: 1px solid #222; cursor: pointer;
+      }
+      .world {
+        display: grid; place-items: center; height: 100%;
+      }
+      canvas { image-rendering: pixelated; background: #0d0f13; box-shadow: 0 0 30px rgba(0,0,0,0.45) inset; border: 1px solid #1b1f2a; }
+      .info { font-size: 12px; opacity: 0.85; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+'''
+with open(os.path.join(client_dir,"index.html"),"w") as f:
+    f.write(index_html)
+
+vite_config = '''
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 5173, host: true },
+});
+'''
+with open(os.path.join(client_dir,"vite.config.js"),"w") as f:
+    f.write(vite_config)
+
+main_jsx = '''
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
+
+createRoot(document.getElementById("root")).render(<App />);
+'''
+with open(os.path.join(client_dir,"src.main.jsx".replace(".", "/")), "w") as f:
+    f.write(main_jsx)
+
+app_jsx = r'''
+import React, { useEffect, useRef, useState } from "react";
+import { nanoid } from "nanoid";
+
+const WORLD_WIDTH = 4096;
+const WORLD_HEIGHT = 2048;
+
+// Simple palette
+const PALETTE = [
+  "#ffffff","#000000","#ff0000","#00ff00","#0000ff",
+  "#ffff00","#ff00ff","#00ffff","#ffa500","#800080",
+  "#964B00","#c0c0c0","#ff69b4","#008080","#2f4f4f",
+  "#e6e6fa","#ffd700","#4b0082"
+];
+
+function useLocalStorage(key, initial) {
+  const [state, setState] = useState(() => {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : initial;
+    } catch {
+      return initial;
+    }
+  });
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [key, state]);
+  return [state, setState];
+}
+
+export default function App() {
+  const [color, setColor] = useLocalStorage("color", PALETTE[0]);
+  const [userId] = useLocalStorage("uid", nanoid());
+  const [balance, setBalance] = useState(0);
+  const [cooldownMs, setCooldownMs] = useState(30_000);
+  const canvasRef = useRef(null);
+  const ctxRef = useRef(null);
+  const socketRef = useRef(null);
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    canvas.width = WORLD_WIDTH;
+    canvas.height = WORLD_HEIGHT;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = false;
+    ctxRef.current = ctx;
+
+    // Draw a subtle grid (every 64px) for orientation
+    ctx.fillStyle = "#0d0f13";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    for (let x=0; x<canvas.width; x+=64) {
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
+    }
+    for (let y=0; y<canvas.height; y+=64) {
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+    }
+
+    // Connect WS
+    const url = new URL(window.location.href);
+    const wsUrl = `ws://${url.hostname}:3001/?uid=${userId}`;
+    const ws = new WebSocket(wsUrl);
+    socketRef.current = ws;
+
+    ws.addEventListener("open", () => setConnected(true));
+    ws.addEventListener("close", () => setConnected(false));
+
+    ws.addEventListener("message", (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.type === "hello") {
+        setBalance(msg.balance ?? 0);
+        setCooldownMs(msg.cooldownMs ?? 30000);
+      }
+      if (msg.type === "snapshot") {
+        const pixels = msg.pixels || [];
+        const ctx = ctxRef.current;
+        pixels.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, 1, 1);
+        });
+      }
+      if (msg.type === "pixel") {
+        const ctx = ctxRef.current;
+        ctx.fillStyle = msg.color;
+        ctx.fillRect(msg.x, msg.y, 1, 1);
+      }
+      if (msg.type === "balance") {
+        setBalance(msg.balance);
+      }
+    });
+
+    return () => ws.close();
+  }, [userId]);
+
+  // Client-side regen visual (server enforces true balance)
+  useEffect(() => {
+    const id = setInterval(() => {
+      setBalance((b) => Math.min(30, b + 1));
+    }, cooldownMs);
+    return () => clearInterval(id);
+  }, [cooldownMs]);
+
+  function placePixel(evt) {
+    if (!socketRef.current || socketRef.current.readyState !== 1) return;
+    if (balance <= 0) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const scaleX = WORLD_WIDTH / rect.width;
+    const scaleY = WORLD_HEIGHT / rect.height;
+    const x = Math.floor((evt.clientX - rect.left) * scaleX);
+    const y = Math.floor((evt.clientY - rect.top) * scaleY);
+
+    socketRef.current.send(JSON.stringify({
+      type: "place",
+      x, y, color, userId
+    }));
+  }
+
+  function downloadPNG() {
+    const url = canvasRef.current.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "world-pixel-canvas.png";
+    a.click();
+  }
+
+  return (
+    <div>
+      <div className="toolbar">
+        <div className="palette" style={{ display: "flex", gap: 8 }}>
+          {PALETTE.map(c => (
+            <button key={c} onClick={() => setColor(c)} title={c} style={{ background: c, outline: color===c ? "2px solid #fff" : "none" }} />
+          ))}
+        </div>
+        <div className="info">Pixels: {balance} • Cooldown: {Math.round(cooldownMs/1000)}s • {connected ? "Connected" : "Offline"}</div>
+        <button onClick={downloadPNG} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #333", background: "#111", color: "#eaeaea", cursor: "pointer" }}>Export PNG</button>
+      </div>
+      <div className="world">
+        <canvas
+          ref={canvasRef}
+          style={{ width: "90vw", height: "auto", maxHeight: "80vh", borderRadius: 12 }}
+          onClick={placePixel}
+        />
+      </div>
+    </div>
+  );
+}
+'''
+src_dir = os.path.join(client_dir, "src")
+os.makedirs(src_dir, exist_ok=True)
+with open(os.path.join(src_dir,"App.jsx"),"w") as f:
+    f.write(app_jsx)
+
+# README
+readme = '''
+# World Pixel Canvas (MVP)
+
+This is an **original** real-time collaborative pixel canvas, inspired by the idea of global pixel art.
+It is **not** a replica of any brand, artwork, UI, or protected content.
+
+## Features
+- 4096×2048 persistent canvas (saved every 60s on the server).
+- Real-time updates via WebSocket.
+- Token-bucket mechanic: start with 30 pixels, regain 1 every 30 seconds (enforced server-side).
+- Simple color palette and PNG export.
+
+## Quick Start
+1. Open two terminals.
+
+### Server
+```bash
+cd server
+npm i
+npm start
 
