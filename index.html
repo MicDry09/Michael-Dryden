@@ -1,85 +1,80 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="styles.css">
-<title>Michael Dryden's Website</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Acme — Modern Homepage</title>
+<meta name="description" content="A clean, modern responsive homepage template." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #38444d;
+:root{
+--bg: #0f1724;
+--card: rgba(255,255,255,0.03);
+--glass: rgba(255,255,255,0.04);
+--muted: rgba(255,255,255,0.65);
+--accent-1: #06b6d4;
+--accent-2: #7c3aed;
+--accent-grad: linear-gradient(135deg,var(--accent-1),var(--accent-2));
+--radius: 14px;
+--glass-blur: 8px;
+--max-w: 1100px;
+color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+margin:0;
+font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent 8%),
+radial-gradient(900px 400px at 90% 90%, rgba(6,182,212,0.08), transparent 10%),
+var(--bg);
+color:#fff;
+-webkit-font-smoothing:antialiased;
+-moz-osx-font-smoothing:grayscale;
+padding:48px 20px;
+display:flex;
+justify-content:center;
+}
+.wrap{width:100%;max-width:var(--max-w)}
+
+/* NAV */
+nav{
+display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:36px
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:10px;background:var(--accent-grad);display:inline-grid;place-items:center;font-weight:700}
+.logo svg{width:22px;height:22px}
+.nav-links{display:flex;gap:18px;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
+.cta{background:var(--accent-grad);padding:10px 16px;border-radius:10px;text-decoration:none;color:white;font-weight:700}
+
+/* MOBILE MENU */
+.menu-btn{display:none;background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:10px}
+
+/* HERO */
+.hero{
+display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;padding:28px;border-radius:var(--radius);background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);box-shadow:0 8px 40px rgba(2,6,23,0.6);
+backdrop-filter: blur(var(--glass-blur));
+}
+.eyebrow{display:inline-block;background:linear-gradient(90deg, rgba(124,58,237,0.12), rgba(6,182,212,0.06));padding:6px 10px;border-radius:999px;color:var(--muted);font-weight:600;margin-bottom:18px}
+h1{font-size: clamp(1.6rem, 3vw, 2.4rem);margin:0 0 12px 0;line-height:1.04}
+p.lead{color:var(--muted);margin:0 0 22px 0}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.card{
+background:var(--card);padding:18px;border-radius:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);
 }
 
-li {
-  float: left;
-}
+/* FEATURE CARDS */
+.features{display:flex;gap:12px;margin-top:18px}
+.feature{flex:1;padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.03)}
+.feature h4{margin:6px 0 0 0}
+.art{display:grid;gap:12px}
 
-li a, .dropbtn {
-  display: inline-block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
+/* FOOTER */
+footer{margin-top:24px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
 
-li a:hover, .dropdown:hover .dropbtn {
-  background-color: red;
-}
-
-li.dropdown {
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  text-align: left;
-}
-
-.dropdown-content a:hover {background-color: #f1f1f1;}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-</style>
-</head>
-<body>
- <ul>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/">Home</a></li>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/Jersey">Jersey</a></li>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/PhotoGallery">Photo Gallery</a></li>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/Building_Index">Index</a></li>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/Map">Map</a></li>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/Fishing">Fishing</a></li>
-    <li><a href="https://micdry09.github.io/Michael-Dryden/Miscellaneous">Miscellaneous</a></li>
-    <li> <input type="text" placeholder="Search.."> <style>div.relative {
-  position: relative;
-  right: 3 </style></li> 
-  </ul>
-    </div>
-  </li>
-</ul>
-<body>
-<h1> The Jersey Architecture Catalogue </h1>
-  <hr>
-  <p>A place to learn about the buildings and structures in Jersey (Channel Island).</p>
-    <br>
-    <hr>
-    © Michael Dryden 2025
-</body>
 
 
 
