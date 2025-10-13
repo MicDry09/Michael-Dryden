@@ -9,18 +9,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
---bg: #0f1724;
---card: rgba(255,255,255,0.03);
---glass: rgba(255,255,255,0.04);
---muted: rgba(255,255,255,0.65);
---accent-1: #06b6d4;
---accent-2: #7c3aed;
---accent-grad: linear-gradient(135deg,var(--accent-1),var(--accent-2));
---radius: 14px;
---glass-blur: 8px;
---max-w: 1100px;
-color-scheme: dark;
+:root {
+  --bg: #0f1724;
+  --card: rgba(255, 255, 255, 0.06);
+  --glass: rgba(255, 255, 255, 0.08);
+  --muted: rgba(255, 255, 255, 0.75);
+  --accent-1: #06b6d4;
+  --accent-2: #7c3aed;
+  --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  --radius: 14px;
+  --glass-blur: 4px; /* was 8px, reduced */
+  --max-w: 1100px;
+  color-scheme: dark;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -54,16 +54,24 @@ display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bo
 .menu-btn{display:none;background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:10px}
 
 /* HERO */
-.hero{
-display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;padding:28px;border-radius:var(--radius);background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);box-shadow:0 8px 40px rgba(2,6,23,0.6);
-backdrop-filter: blur(var(--glass-blur));
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 28px;
+  align-items: center;
+  padding: 28px;
+  border-radius: var(--radius);
+  background: rgba(17, 25, 40, 0.75); /* solid fallback layer */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(var(--glass-blur));
 }
-.eyebrow{display:inline-block;background:linear-gradient(90deg, rgba(124,58,237,0.12), rgba(6,182,212,0.06));padding:6px 10px;border-radius:999px;color:var(--muted);font-weight:600;margin-bottom:18px}
-h1{font-size: clamp(1.6rem, 3vw, 2.4rem);margin:0 0 12px 0;line-height:1.04}
-p.lead{color:var(--muted);margin:0 0 22px 0}
-.actions{display:flex;gap:12px;flex-wrap:wrap}
-.card{
-background:var(--card);padding:18px;border-radius:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);
+  
+  /* CARD */
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 /* FEATURE CARDS */
