@@ -1,16 +1,599 @@
-body {background-color: teal;
-     }
+```css
+/* =========================================================
+   MICHAELDRYDEN.CO.UK
+   Main Website Stylesheet
+   ========================================================= */
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    color: #ffffff;
+
+    background: #080808;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+/*
+   The background creates the dark, blurred and colourful
+   effect used throughout the website.
+*/
+
+.background {
+    position: fixed;
+
+    top: -100px;
+    left: -100px;
+    right: -100px;
+    bottom: -100px;
+
+    z-index: -2;
+
+    background:
+        radial-gradient(
+            circle at 15% 25%,
+            rgba(70, 90, 150, 0.45),
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(120, 65, 150, 0.35),
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at 50% 80%,
+            rgba(25, 100, 120, 0.35),
+            transparent 40%
+        ),
+
+        #080808;
+
+    filter: blur(45px);
+
+    transform: scale(1.1);
+}
+
+
+/*
+   Darkens the background slightly so that
+   the white text remains easy to read.
+*/
+
+.background::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+}
+
+
+/* =========================================================
+   MAIN PAGE LAYOUT
+   ========================================================= */
+
+.page {
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding: 70px 25px 40px;
+}
+
+
+.content {
+    width: 100%;
+
+    max-width: 750px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   MAIN TITLES
+   ========================================================= */
 
 h1 {
     width: 100%;
+
     text-align: center;
-    font-size: clamp(2.5rem, 8vw, 5.5rem);
+
+    font-size: clamp(
+        3rem,
+        10vw,
+        6rem
+    );
+
     font-weight: 300;
-    letter-spacing: -0.04em;
-    margin: 0 0 50px 0;
-    padding: 0;
-    text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+    letter-spacing: -0.05em;
+
+    margin-bottom: 50px;
+
+    color: #ffffff;
+
+    text-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.6);
 }
 
-intro { margin-top: 35px; color: rgba(255, 255, 255, 0.65); font-size: 1rem; line-height: 1.7; text-align: center; }
+
+/* =========================================================
+   GENERAL TEXT
+   ========================================================= */
+
+p {
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   HOMEPAGE LINKS
+   ========================================================= */
+
+.links {
+    list-style: none;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.links a {
+    display: block;
+
+    width: 100%;
+
+    padding: 18px 24px;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    text-align: center;
+
+    font-size: 1.05rem;
+
+    letter-spacing: 0.02em;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+    border-radius: 14px;
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.links a:hover {
+    transform: translateY(-3px);
+
+    background:
+        rgba(255, 255, 255, 0.13);
+
+    border-color:
+        rgba(255, 255, 255, 0.25);
+}
+
+
+/* =========================================================
+   GENERAL INTRODUCTION TEXT
+   ========================================================= */
+
+.intro {
+    margin-top: 35px;
+
+    color:
+        rgba(255, 255, 255, 0.65);
+
+    font-size: 1rem;
+
+    line-height: 1.8;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   BLOG
+   ========================================================= */
+
+.blog-post {
+    width: 100%;
+
+    margin-bottom: 30px;
+
+    padding: 30px;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+    border-radius: 18px;
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, 0.18);
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.blog-post:hover {
+    transform: translateY(-3px);
+
+    background:
+        rgba(255, 255, 255, 0.09);
+
+    border-color:
+        rgba(255, 255, 255, 0.2);
+}
+
+
+.blog-post h2 {
+    font-size: 1.6rem;
+
+    font-weight: 400;
+
+    margin-bottom: 8px;
+}
+
+
+.date {
+    display: block;
+
+    color:
+        rgba(255, 255, 255, 0.45);
+
+    font-size: 0.85rem;
+
+    margin-bottom: 22px;
+}
+
+
+.blog-post p {
+    color:
+        rgba(255, 255, 255, 0.7);
+
+    font-size: 1rem;
+
+    line-height: 1.8;
+
+    margin-bottom: 15px;
+}
+
+
+.blog-post p:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   JERSEY PAGE
+   ========================================================= */
+
+
+/* Introduction */
+
+.jersey-intro {
+    max-width: 650px;
+
+    margin:
+        -20px auto 45px;
+
+    text-align: center;
+
+    color:
+        rgba(255, 255, 255, 0.7);
+
+    font-size: 1.05rem;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   JERSEY MAP
+   ========================================================= */
+
+.map-container {
+    width: 100%;
+
+    height: 400px;
+
+    margin-bottom: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.14);
+
+    box-shadow:
+        0 20px 60px
+        rgba(0, 0, 0, 0.3);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+}
+
+
+.map-placeholder {
+    text-align: center;
+
+    color:
+        rgba(255, 255, 255, 0.4);
+}
+
+
+.map-placeholder h3 {
+    font-size: 1.2rem;
+
+    font-weight: 400;
+
+    letter-spacing: 0.08em;
+
+    margin-bottom: 10px;
+}
+
+
+.map-placeholder p {
+    font-size: 0.85rem;
+}
+
+
+/* =========================================================
+   JERSEY SECTIONS
+   ========================================================= */
+
+.jersey-section {
+    width: 100%;
+
+    margin-bottom: 25px;
+
+    padding: 28px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(255, 255, 255, 0.065);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, 0.18);
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.jersey-section:hover {
+    transform: translateY(-3px);
+
+    background:
+        rgba(255, 255, 255, 0.09);
+
+    border-color:
+        rgba(255, 255, 255, 0.2);
+}
+
+
+/* Jersey headings */
+
+.jersey-section h2 {
+    margin-bottom: 15px;
+
+    font-size: 1.6rem;
+
+    font-weight: 400;
+}
+
+
+.jersey-section h2 a {
+    color: #ffffff;
+
+    text-decoration: none;
+
+    transition:
+        opacity 0.2s ease;
+}
+
+
+.jersey-section h2 a:hover {
+    opacity: 0.65;
+}
+
+
+/* Jersey paragraphs */
+
+.jersey-description {
+    color:
+        rgba(255, 255, 255, 0.68);
+
+    font-size: 1rem;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   BACK TO HOME LINK
+   ========================================================= */
+
+.back {
+    display: block;
+
+    width: fit-content;
+
+    margin: 50px auto 0;
+
+    color:
+        rgba(255, 255, 255, 0.55);
+
+    text-decoration: none;
+
+    font-size: 0.95rem;
+
+    transition:
+        color 0.2s ease;
+}
+
+
+.back:hover {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    text-align: center;
+
+    margin-top: 65px;
+
+    color:
+        rgba(255, 255, 255, 0.35);
+
+    font-size: 0.8rem;
+
+    letter-spacing: 0.04em;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .page {
+        padding:
+            45px 18px 30px;
+    }
+
+
+    h1 {
+        font-size: 3.5rem;
+
+        margin-bottom: 40px;
+    }
+
+
+    .links a {
+        padding:
+            16px 20px;
+    }
+
+
+    .blog-post {
+        padding: 23px;
+    }
+
+
+    .blog-post h2 {
+        font-size: 1.4rem;
+    }
+
+
+    .jersey-intro {
+        font-size: 0.95rem;
+
+        margin-bottom: 35px;
+    }
+
+
+    .map-container {
+        height: 300px;
+    }
+
+
+    .jersey-section {
+        padding: 23px;
+    }
+
+
+    .jersey-section h2 {
+        font-size: 1.4rem;
+    }
+
+
+    footer {
+        margin-top: 50px;
+    }
+}
 ```
+
