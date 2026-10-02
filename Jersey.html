@@ -1,9 +1,353 @@
-<!doctype html>
-<html>
-<title>Jersey</title>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Jersey | MichaelDryden.co.uk</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Jersey page */
+
+        .jersey-intro {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        /* Map */
+
+        .map-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 50px;
+
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .map-placeholder h3 {
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .map-placeholder p {
+            font-size: 0.9rem;
+        }
+
+        /* Jersey sections */
+
+        .jersey-section {
+            margin-bottom: 30px;
+            padding: 28px;
+
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+
+            transition:
+                background 0.25s ease,
+                border-color 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .jersey-section:hover {
+            background: rgba(255, 255, 255, 0.10);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Clickable subheading */
+
+        .jersey-section h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .jersey-section h2 a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .jersey-section h2 a:hover {
+            text-decoration: underline;
+        }
+
+        /* Published paragraph */
+
+        .jersey-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        /* Back link */
+
+        .back {
+            display: block;
+            width: fit-content;
+            margin: 50px auto 0;
+
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-size: 0.95rem;
+
+            transition: color 0.25s ease;
+        }
+
+        .back:hover {
+            color: #ffffff;
+        }
+
+        /* Footer */
+
+        footer {
+            text-align: center;
+            margin-top: 70px;
+
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 600px) {
+            .page {
+                padding: 45px 18px 30px;
+            }
+
+            .jersey-section {
+                padding: 23px;
+            }
+
+            .jersey-section h2 {
+                font-size: 1.4rem;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
 <body>
-  <h1>Jersey</h1>
-  <hr>
-  <p>© Michael Dryden 2025</p>
+
+    <!-- Blurred background -->
+    <div class="background"></div>
+
+    <main class="page">
+
+        <div class="content">
+
+            <!-- Page title -->
+            <h1>JERSEY</h1>
+
+
+            <!-- Introduction -->
+            <p class="jersey-intro">
+                Welcome to my guide to Jersey. Explore the island,
+                its history, places, people and everything that makes
+                Jersey unique.
+            </p>
+
+
+            <!-- MAP -->
+            <div class="map-container">
+
+                <!--
+                    Your map goes here.
+
+                    You can replace this placeholder with a
+                    Google Maps or OpenStreetMap iframe.
+                -->
+
+                <div class="map-placeholder">
+                    <h3>MAP OF JERSEY</h3>
+                    <p>Your map will go here</p>
+                </div>
+
+            </div>
+
+
+            <!-- HISTORY -->
+            <section class="jersey-section">
+
+                <h2>
+                    <a href="jersey-history.html">
+                        History of Jersey
+                    </a>
+                </h2>
+
+                <p class="jersey-description">
+                    Jersey has a long and fascinating history, shaped
+                    by its position between Britain and France. Here
+                    you can introduce the island's history and provide
+                    an overview before visitors explore the dedicated
+                    history page.
+                </p>
+
+            </section>
+
+
+            <!-- PLACES -->
+            <section class="jersey-section">
+
+                <h2>
+                    <a href="jersey-places.html">
+                        Places to Visit
+                    </a>
+                </h2>
+
+                <p class="jersey-description">
+                    Jersey has a wide variety of places to explore,
+                    from historic sites and beautiful coastlines to
+                    towns, countryside and attractions. Add your
+                    introduction to the island's places here.
+                </p>
+
+            </section>
+
+
+            <!-- BEACHES -->
+            <section class="jersey-section">
+
+                <h2>
+                    <a href="jersey-beaches.html">
+                        Beaches
+                    </a>
+                </h2>
+
+                <p class="jersey-description">
+                    Jersey is surrounded by beaches and coastline,
+                    each with its own character. Use this section
+                    to introduce Jersey's beaches before linking
+                    visitors to the dedicated beaches page.
+                </p>
+
+            </section>
+
+
+            <!-- FOOD -->
+            <section class="jersey-section">
+
+                <h2>
+                    <a href="jersey-food.html">
+                        Food & Drink
+                    </a>
+                </h2>
+
+                <p class="jersey-description">
+                    Jersey has its own food traditions as well as a
+                    wide range of restaurants, cafés and local
+                    producers. Write your introduction to Jersey's
+                    food and drink here.
+                </p>
+
+            </section>
+
+
+            <!-- CULTURE -->
+            <section class="jersey-section">
+
+                <h2>
+                    <a href="jersey-culture.html">
+                        Culture & Traditions
+                    </a>
+                </h2>
+
+                <p class="jersey-description">
+                    From local traditions and celebrations to the
+                    island's distinctive identity, Jersey has a
+                    culture influenced by both its British and
+                    Norman-French heritage.
+                </p>
+
+            </section>
+
+
+            <!-- NATURE -->
+            <section class="jersey-section">
+
+                <h2>
+                    <a href="jersey-nature.html">
+                        Nature & Wildlife
+                    </a>
+                </h2>
+
+                <p class="jersey-description">
+                    Jersey's coastline, countryside and varied
+                    habitats support a wide range of plants and
+                    wildlife. Add your introduction to the island's
+                    natural environment here.
+                </p>
+
+            </section>
+
+
+            <!--
+                ADDING ANOTHER SECTION
+
+                Copy the following section and change the
+                heading, link and paragraph:
+
+                <section class="jersey-section">
+
+                    <h2>
+                        <a href="your-page.html">
+                            Your New Section
+                        </a>
+                    </h2>
+
+                    <p class="jersey-description">
+                        Write your permanent published text here.
+                    </p>
+
+                </section>
+            -->
+
+
+            <!-- Back to home -->
+            <a class="back" href="index.html">
+                ← Back to Home
+            </a>
+
+
+            <!-- Footer -->
+            <footer>
+                &copy; Michael Dryden 2026
+            </footer>
+
+        </div>
+
+    </main>
+
 </body>
 </html>
+
+
